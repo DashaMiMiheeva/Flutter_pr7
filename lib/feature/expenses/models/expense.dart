@@ -1,0 +1,35 @@
+class Expense {
+  final String id;
+  final double amount;
+  final String category;
+  final String? description;
+  final DateTime date;
+  final String imageUrl;
+
+  Expense({
+    required this.id,
+    required this.amount,
+    required this.category,
+    this.description,
+    required this.date,
+    required this.imageUrl,
+  });
+
+  Expense copyWith({
+    String? id,
+    double? amount,
+    String? category,
+    String? description,
+    DateTime? date,
+    String? imageUrl,
+  }) {
+    return Expense(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      date: date ?? this.date,
+      imageUrl: imageUrl ?? this.imageUrl
+    );
+  }
+}
