@@ -52,8 +52,10 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Учёт расходов',
+      routerConfig: _router,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: const Color(0xFFFFC1CC),
         scaffoldBackgroundColor: const Color(0xFFFFF0F5),
@@ -78,7 +80,6 @@ class ExpensesApp extends StatelessWidget {
         ),
         useMaterial3: false,
       ),
-      home: const ExpensesContainer(),
     );
   }
 }
