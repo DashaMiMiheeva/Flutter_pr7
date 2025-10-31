@@ -1,97 +1,52 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
-import '../widgets/expense_row.dart';
-import '../widgets/expense_table.dart';
+import 'add_expense_screen.dart';
+import 'expense_detail_screen.dart';
 
-class ExpensesListScreen extends StatelessWidget {
-  final List<Expense> expenses;
-  final VoidCallback onAddTap;
-  final void Function(String id) onDelete;
-  final void Function(Expense expense)? onEdit;
+class ExpensesListScreen extends StatefulWidget {
+  const ExpensesListScreen({super.key});
 
-  final void Function(DateTime date) onFilter;
-  final VoidCallback onClearFilter;
-  final DateTime? selectedDate;
+  @override
+  State<ExpensesListScreen> createState() => _ExpensesListScreenState();
+}
 
-  const ExpensesListScreen({
-    Key? key,
-    required this.expenses,
-    required this.onAddTap,
-    required this.onDelete,
-    this.onEdit,
-    required this.onFilter,
-    required this.onClearFilter,
-    this.selectedDate,
-  }) : super(key: key);
+class _ExpensesListScreenState extends State<ExpensesListScreen> {
+  final List<Expense> _expenses = [];
 
-  double _sumAll() => expenses.fold(0.0, (s, e) => s + e.amount);
-
-  Future<void> _pickDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now().subtract(const Duration(days: 365 * 5)),
-      lastDate: DateTime.now(),
+  void _addExpense() async {
+    final newExpense = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AddExpenseScreen()),
     );
-    if (picked != null) onFilter(picked);
+
+    if (newExpense != null && newExpense is Expense) {
+      setState(() => _expenses.insert(0, newExpense));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final total = _sumAll();
-    final dateLabel = selectedDate != null
-        ? 'Фильтр: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}'
-        : 'Все расходы';
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Мои расходы'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            tooltip: 'Фильтр по месяцу',
-            onPressed: () => _pickDate(context),
-          ),
-          if (selectedDate != null)
-            IconButton(
-              icon: const Icon(Icons.clear),
-              tooltip: 'Сбросить фильтр',
-              onPressed: onClearFilter,
+      appBar: AppBar(title: const Text("Мои расходы")),
+      body: ListView.builder(
+        itemCount: _expenses.length,
+        itemBuilder: (context, index) {
+          final e = _expenses[index];
+          final date = "${e.date.day}.${e.date.month}.${e.date.year}";
+          return ListTile(
+            title: Text("${e.amount} ₽"),
+            subtitle: Text(date),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ExpenseDetailScreen(expense: e),
+              ),
             ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            color: Colors.grey[100],
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    dateLabel,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Text(
-                  '${total.toStringAsFixed(2)} ₽',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ExpenseTable(
-              expenses: expenses,
-              onDelete: onDelete,
-              onTap: onEdit,
-            ),
-          ),
-        ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: onAddTap,
+        onPressed: _addExpense,
         child: const Icon(Icons.add),
       ),
     );

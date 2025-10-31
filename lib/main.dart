@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'feature/expenses/expenses_container.dart';
 import 'package:go_router/go_router.dart';
-import 'feature/expenses/models/expense.dart';
 import 'feature/expenses/screens/home_screen.dart';
 import 'feature/expenses/screens/expenses_list_screen.dart';
-import 'feature/expenses/screens/add_expense_screen.dart';
-import 'feature/expenses/screens/expense_detail_screen.dart';
 import 'feature/expenses/screens/settings_screen.dart';
 
 void main() {
@@ -17,31 +13,14 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      name: 'home',
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
       path: '/list',
-      name: 'list',
       builder: (context, state) => const ExpensesListScreen(),
     ),
     GoRoute(
-      path: '/add',
-      name: 'add',
-      builder: (context, state) => const AddExpenseScreen(),
-    ),
-    GoRoute(
-      path: '/detail',
-      name: 'detail',
-      // ожидаем, что при маршрутизируемом переходе можно передать id в параметрах/state.extra
-      builder: (context, state) {
-        final expense = state.extra as Expense?;
-        return ExpenseDetailScreen(expense: expense);
-      },
-    ),
-    GoRoute(
       path: '/settings',
-      name: 'settings',
       builder: (context, state) => const SettingsScreen(),
     ),
   ],

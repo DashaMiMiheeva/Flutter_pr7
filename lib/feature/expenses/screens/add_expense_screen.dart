@@ -1,123 +1,71 @@
 import 'package:flutter/material.dart';
+import '../models/expense.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  final void Function({
-  required double amount,
-  required String category,
-  String? description,
-  required DateTime date,
-  }) onSave;
-  final List<String> categories;
-
-  const AddExpenseScreen({
-    Key? key,
-    required this.onSave,
-    required this.categories,
-  }) : super(key: key);
+  const AddExpenseScreen({Key? key}) : super(key: key);
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
 }
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
-  final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  String? _selectedCategory;
   final _descriptionController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  String _category = 'Еда';
+  final List<String> _categories = [
+    'Еда', 'Транспорт', 'Покупки', 'Развлечения', 'Прочее'
+  ];
+  final Map<String, String> _imgs = {
+    'Еда': 'https://cdn-icons-png.flaticon.com/512/1046/1046857.png',
+    'Транспорт': 'https://cdn-icons-png.flaticon.com/512/3124/3124296.png',
+    'Покупки': 'https://cdn-icons-png.flaticon.com/512/891/891462.png',
+    'Развлечения': 'https://cdn-icons-png.flaticon.com/512/3107/3107849.png',
+    'Прочее': 'https://cdn-icons-png.flaticon.com/512/2917/2917995.png',
+  };
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.categories.isNotEmpty) {
-      _selectedCategory = widget.categories.first;
-    }
-  }
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 365 * 5)),
-      lastDate: DateTime.now(),
+  void _save() {
+    final amount = double.parse(_amountController.text);
+    final expense = Expense(
+      id: DateTime.now().toString(),
+      amount: amount,
+      category: _category,
+      description: _descriptionController.text.isEmpty
+          ? null
+          : _descriptionController.text,
+      date: DateTime.now(),
+      imageUrl: _imgs[_category]!,
     );
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
 
-  void _submit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      final amount = double.parse(_amountController.text.replaceAll(',', '.'));
-      final category = _selectedCategory ?? 'Прочее';
-      final description = _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim();
-      widget.onSave(amount: amount, category: category, description: description, date: _selectedDate);
-    }
+    Navigator.pop(context, expense);
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = "${_selectedDate.day.toString().padLeft(2,'0')}.${_selectedDate.month.toString().padLeft(2,'0')}.${_selectedDate.year}";
     return Scaffold(
-      appBar: AppBar(title: const Text('Добавить расход')),
+      appBar: AppBar(title: const Text("Добавить расход")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _amountController,
-                decoration: const InputDecoration(labelText: 'Сумма', prefixText: '₽ '),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Введите сумму';
-                  final parsed = double.tryParse(v.replaceAll(',', '.'));
-                  if (parsed == null || parsed <= 0) return 'Введите корректную сумму > 0';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: const InputDecoration(labelText: 'Категория'),
-                items: widget.categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                onChanged: (v) => setState(() => _selectedCategory = v),
-                validator: (v) => (v == null || v.isEmpty) ? 'Выберите категорию' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Описание (необязательно)'),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Text('Дата: $dateStr'),
-                  const Spacer(),
-                  TextButton(onPressed: _pickDate, child: const Text('Изменить дату')),
-                ],
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  child: const Text('Сохранить'),
-                ),
-              ),
-            ],
-          ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: _amountController,
+              decoration: const InputDecoration(labelText: "Сумма"),
+              keyboardType: TextInputType.number,
+            ),
+            DropdownButton<String>(
+              value: _category,
+              items: _categories
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (v) => setState(() => _category = v!),
+            ),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: "Описание"),
+            ),
+            const Spacer(),
+            ElevatedButton(onPressed: _save, child: const Text("Сохранить")),
+          ],
         ),
       ),
     );

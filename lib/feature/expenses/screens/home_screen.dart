@@ -7,30 +7,20 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Главная')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(title: const Text("Главная")),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () => context.go('/list'), // маршрутизированно
-              child: const Text('Список расходов (GoRouter)'),
+              onPressed: () => context.go('/list'),
+              child: const Text("Список расходов"),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AddExpenseScreen()),
-              ), // страничная навигация push
-              child: const Text('Добавить расход (Navigator.push)'),
+              onPressed: () => context.go('/settings'),
+              child: const Text("Настройки"),
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              ), // горизонтальная навигация — pushReplacement
-              child: const Text('Перейти в настройки (pushReplacement)'),
-            ),
-            // ... здесь можно добавить краткую статистику
           ],
         ),
       ),
