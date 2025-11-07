@@ -22,7 +22,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     'Развлечения': 'https://cdn-icons-png.flaticon.com/512/3107/3107849.png',
     'Прочее': 'https://cdn-icons-png.flaticon.com/512/2917/2917995.png',
   };
-
   void _save() {
     final amount = double.parse(_amountController.text);
     final expense = Expense(
@@ -35,10 +34,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       date: DateTime.now(),
       imageUrl: _imgs[_category]!,
     );
-
     Navigator.pop(context, expense);
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
