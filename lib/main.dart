@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'feature/expenses/providers/expenses_provider.dart';
 import 'feature/expenses/screens/home_screen.dart';
 import 'feature/expenses/screens/expenses_list_screen.dart';
 import 'feature/expenses/screens/settings_screen.dart';
+import 'locator.dart';
 
 void main() {
-  runApp(const ExpensesApp());
+  setupLocator();
+  runApp(
+      ExpensesProvider(
+          child: const ExpensesApp(),
+      ),
+  );
 }
 
 final GoRouter _router = GoRouter(

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../locator.dart';
+import '../models/category_service.dart';
 import '../models/expense.dart';
+import '../providers/expenses_provider.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({Key? key}) : super(key: key);
@@ -11,31 +14,35 @@ class AddExpenseScreen extends StatefulWidget {
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String _category = 'Еда';
-  final List<String> _categories = [
-    'Еда', 'Транспорт', 'Покупки', 'Развлечения', 'Прочее'
-  ];
-  final Map<String, String> _imgs = {
-    'Еда': 'https://cdn-icons-png.flaticon.com/512/1046/1046857.png',
-    'Транспорт': 'https://cdn-icons-png.flaticon.com/512/3124/3124296.png',
-    'Покупки': 'https://cdn-icons-png.flaticon.com/512/891/891462.png',
-    'Развлечения': 'https://cdn-icons-png.flaticon.com/512/3107/3107849.png',
-    'Прочее': 'https://cdn-icons-png.flaticon.com/512/2917/2917995.png',
-  };
+
+  final categoryService = locator.get<CategoryService>();
+  String? _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = categoryService.categories.first;
+  }
+
   void _save() {
-    final amount = double.parse(_amountController.text);
+    if (_selectedCategory == null || _amountController.text.isEmpty) return;
+
+    final amount = double.tryParse(_amountController.text) ?? 0;
     final expense = Expense(
       id: DateTime.now().toString(),
       amount: amount,
-      category: _category,
+      category: _selectedCategory!,
       description: _descriptionController.text.isEmpty
           ? null
           : _descriptionController.text,
       date: DateTime.now(),
-      imageUrl: _imgs[_category]!,
+      imageUrl: categoryService.images[_selectedCategory]!,
     );
-    Navigator.pop(context, expense);
+
+    ExpensesProvider.of(context).add(expense);
+    Navigator.pop(context);
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,19 +56,27 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               decoration: const InputDecoration(labelText: "Сумма"),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 12),
             DropdownButton<String>(
-              value: _category,
-              items: _categories
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+              isExpanded: true,
+              value: _selectedCategory,
+              items: categoryService.categories
+                  .map((c) => DropdownMenuItem(
+                value: c,
+                child: Text(c),
+              ))
                   .toList(),
-              onChanged: (v) => setState(() => _category = v!),
+              onChanged: (v) => setState(() => _selectedCategory = v),
             ),
             TextField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: "Описание"),
             ),
             const Spacer(),
-            ElevatedButton(onPressed: _save, child: const Text("Сохранить")),
+            ElevatedButton(
+              onPressed: _save,
+              child: const Text("Сохранить"),
+            ),
           ],
         ),
       ),
